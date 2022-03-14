@@ -5,6 +5,14 @@ const router = express.Router();
 // param middlewares only run for certain parameters
 //router.param("id", tourController.checkID);
 
+router
+  .route('/top-5-cheap')
+  .get(tourController.aliasTopTours, tourController.getAllTours);
+
+router.route('/tour-state').get(tourController.tourState);
+
+router.route('/monthly-plan/:year').get(tourController.monthlyPlane);
+
 router.route('/').get(tourController.getAllTours).post(
   //  tourController.checkBody,
   tourController.createTour
