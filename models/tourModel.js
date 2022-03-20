@@ -16,6 +16,10 @@ const tourSchema = new mongoose.Schema(
       type: String,
       required: [true, 'A tour  must have a description'],
     },
+    secretTour: {
+      type: Boolean,
+      default: false,
+    },
     maxGroupSize: {
       type: Number,
       required: [true, 'A tour  must have a maxsize'],
@@ -80,6 +84,27 @@ tourSchema.post('save', function (doc, next) {
   next();
 });
 
+//here is a query middleware which will get us just the items that are not secret
+tourSchema.pre('find', function (next) {
+  this.find({ secretTour: { $ne: true } });
+
+  //if we dont call the next we will be stuck here
+  next();
+});
+
+//we are using a regular expression to execute this middleware for all the methodes that begin with find
+tourSchema.pre(/^find/, function (next) {
+  this.find({ secretTour: { $ne: true } });
+  this.start = Date.now();
+  //if we dont call the next we will be stuck here
+  next();
+});
+tourSchema.post(/^find/, function (docs, next) {
+  console.log(`the query take .. ${Date.now() - this.start} milliseconds`);
+  console.log(docs);
+  //if we dont call the next we will be stuck here
+  next();
+});
 //fat models thin controller talk !!(mean upload models as much as possible of bussiness logic and less for the controller)
 const Tour = mongoose.model('Tour', tourSchema);
 module.exports = Tour;
