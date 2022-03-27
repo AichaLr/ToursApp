@@ -105,6 +105,13 @@ tourSchema.post(/^find/, function (docs, next) {
   //if we dont call the next we will be stuck here
   next();
 });
+// AGGREGATION MIDDLEWARE
+tourSchema.pre('aggregate', function (next) {
+  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+
+  console.log(this.pipeline());
+  next();
+});
 //fat models thin controller talk !!(mean upload models as much as possible of bussiness logic and less for the controller)
 const Tour = mongoose.model('Tour', tourSchema);
 module.exports = Tour;
