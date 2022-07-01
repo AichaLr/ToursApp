@@ -6,16 +6,19 @@ const filtred = (obj, ...allowedFields) => {
   });
   return obje;
 };
-exports.getAllUsers = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined!',
+exports.getAllUsers = async (req, res) => {
+  const users = await User.find();
+
+  res.status(200).json({
+    status: 'success',
+    data: { users },
   });
 };
 exports.getUser = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined!',
+  const user = User.findById(req.user.id);
+  res.status(200).json({
+    status: 'success',
+    data: user,
   });
 };
 exports.createUser = (req, res) => {
@@ -36,7 +39,13 @@ exports.deleteUser = (req, res) => {
     message: 'This route is not yet defined!',
   });
 };
-
+exports.deleteMe = async (req, res, next) => {
+  await User.findByIdAndUpdate(req.user.id, { active: false });
+  res.status(204).json({
+    status: 'sucess',
+    data: null,
+  });
+};
 exports.updateMe = async (req, res, next) => {
   if (req.body.password || req.body.passwordConfirm)
     throw new Error('the wrong way to update password !');
