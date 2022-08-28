@@ -1,5 +1,7 @@
 const slugify = require('slugify');
 const mongoose = require('mongoose');
+const Review = require('./reviewModel');
+const User = require('./userModel');
 
 const tourSchema = new mongoose.Schema(
   {
@@ -28,11 +30,11 @@ const tourSchema = new mongoose.Schema(
       type: String,
       required: [true, 'A tour  must have a difficulty'],
     },
-    ratingAverage: {
+    ratingsAverage: {
       type: Number,
       default: 4.5,
     },
-    ratingQuantity: {
+    ratingsQuantity: {
       type: Number,
       default: 4.5,
     },
@@ -85,10 +87,22 @@ const tourSchema = new mongoose.Schema(
   }, //thats mean when we output the result as object or as json the virtuals will show
   { toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
+
+// tourSchema.index({ price: 1 });
+tourSchema.index({ price: 1, ratingsAverage: -1 });
+tourSchema.index({ slug: 1 });
+tourSchema.index({ startLocation: '2dsphere' });
+
 //we use a regular function here (not an arrown one because we need to use this keyword which is not available in arrow functions)
 //virtual attributes are not persisted in the database
 tourSchema.virtual('durationPerWeek').get(function () {
   return this.duration / 7;
+});
+
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour',
+  localField: '_id',
 });
 
 //middleware(hooks) for mongoose document middleware which is called pre save hook or pre save middleware whic is exucted
@@ -100,11 +114,7 @@ tourSchema.pre('save', function (next) {
   //if we dont call the next we will be stuck here
   next();
 });
-tourSchema.pre('save', function (next) {
-  console.log('we are saving ......');
-  //if we dont call the next we will be stuck here
-  next();
-});
+
 //the post midlleware mean the after middleware will have access not only to the next parameter but also to the finished saved doc
 tourSchema.post('save', function (doc, next) {
   const document = doc.slug;
@@ -114,12 +124,6 @@ tourSchema.post('save', function (doc, next) {
 });
 
 //here is a query middleware which will get us just the items that are not secret
-tourSchema.pre('find', function (next) {
-  this.find({ secretTour: { $ne: true } });
-
-  //if we dont call the next we will be stuck here
-  next();
-});
 
 //we are using a regular expression to execute this middleware for all the methodes that begin with find
 tourSchema.pre(/^find/, function (next) {
@@ -134,13 +138,28 @@ tourSchema.post(/^find/, function (docs, next) {
   //if we dont call the next we will be stuck here
   next();
 });
-// AGGREGATION MIDDLEWARE
-tourSchema.pre('aggregate', function (next) {
-  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
 
-  console.log(this.pipeline());
+tourSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'guides',
+    select: '-__v -passwordChangedAt',
+  });
+
   next();
 });
+
+tourSchema.post(/^find/, function (docs, next) {
+  console.log(`Query took ${Date.now() - this.start} milliseconds!`);
+  next();
+});
+
+// // AGGREGATION MIDDLEWARE
+//tourSchema.pre('aggregate', function (next) {
+//this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+
+// console.log(this.pipeline());
+//next();
+//});
 //fat models thin controller talk !!(mean upload models as much as possible of bussiness logic and less for the controller)
 const Tour = mongoose.model('Tour', tourSchema);
 module.exports = Tour;

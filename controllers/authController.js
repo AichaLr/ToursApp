@@ -153,7 +153,7 @@ exports.resetPassword = async (req, res, next) => {
   //3)updated changedPasswordAt
 
   //4)lo the user in and send token
-  createSendToken(newUser, 201, res);
+  createSendToken(user, 201, res);
 };
 
 exports.updatePassword = async (req, res, next) => {
@@ -166,5 +166,5 @@ exports.updatePassword = async (req, res, next) => {
   user.passwordConfirm = req.body.passwordConfirm;
 
   await user.save();
-  createSendToken(newUser, 201, res);
+  createSendToken(user, 201, res);
 };

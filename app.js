@@ -1,10 +1,15 @@
 const express = require('express');
 const morgan = require('morgan');
-
+const path = require('path');
 const tourRouter = require('./routes/tourRoute');
 const userRouter = require('./routes/userRoute');
+const viewRouter = require('./routes/viewRoute');
+const reviewRouter = require('./routes/reviewRoute');
 
 const app = express();
+
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
 
 // 1) MIDDLEWARES
 if (process.env.NODE_ENV === 'development') {
@@ -26,7 +31,10 @@ app.use((req, res, next) => {
 });
 
 // 3) ROUTES
+
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/reviews', reviewRouter);
 
+app.use('/', viewRouter);
 module.exports = app;
