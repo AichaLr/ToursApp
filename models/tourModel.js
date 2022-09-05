@@ -98,7 +98,7 @@ tourSchema.index({ startLocation: '2dsphere' });
 tourSchema.virtual('durationPerWeek').get(function () {
   return this.duration / 7;
 });
-
+//its called virtual populate
 tourSchema.virtual('reviews', {
   ref: 'Review',
   foreignField: 'tour',
