@@ -1,10 +1,13 @@
 const express = require('express');
 const tourController = require('./../controllers/tourController');
 const authController = require('./../controllers/authController');
+const reviewRoute = require('./../routes/reviewRoute');
 
 const router = express.Router();
 // param middlewares only run for certain parameters
 //router.param("id", tourController.checkID);
+
+router.use('/:tourId/reviews', reviewRoute);
 
 router
   .route('/top-5-cheap')
