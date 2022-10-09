@@ -10,7 +10,8 @@ const signToken = (id) => {
 };
 
 const createSendToken = (user, statusCode, res) => {
-  const token = signToken(user._id);
+  // const token = signToken(user._id);
+  const token = signToken(user.id);
   const cookieOptions = {
     expires: new Date(
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
@@ -50,17 +51,25 @@ exports.login = async (req, res, next) => {
 
   // 1) Check if email and password exist
   if (!email || !password) {
-    return next(new AppError('Please provide email and password!', 400));
+    return next(new Error('Please provide email and password!'));
   }
   // 2) Check if user exists && password is correct
   const user = await User.findOne({ email }).select('+password');
 
   if (!user || !(await user.correctPassword(password, user.password))) {
-    return next(new AppError('Incorrect email or password', 401));
+    return next(new Error('password incorrect'));
   }
 
   // 3) If everything ok, send token to client
   createSendToken(user, 200, res);
+};
+
+exports.logout = (req, res) => {
+  res.cookie('jwt', 'loggedout', {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true,
+  });
+  res.status(200).json({ status: 'success' });
 };
 
 exports.protect = async (req, res, next) => {
@@ -71,11 +80,13 @@ exports.protect = async (req, res, next) => {
     req.headers.authorization.startsWith('Bearer')
   ) {
     token = req.headers.authorization.split(' ')[1];
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
   }
 
   if (!token) {
     return next(
-      new AppError('You are not logged in! Please log in to get access.', 401)
+      new Error('You are not logged in! Please log in to get access.')
     );
   }
 
@@ -86,22 +97,21 @@ exports.protect = async (req, res, next) => {
   const currentUser = await User.findById(decoded.id);
   if (!currentUser) {
     return next(
-      new AppError(
-        'The user belonging to this token does no longer exist.',
-        401
-      )
+      new Error('The user belonging to this token does no longer exist.')
     );
   }
 
   // 4) Check if user changed password after the token was issued
   if (currentUser.changedPasswordAfter(decoded.iat)) {
     return next(
-      new AppError('User recently changed password! Please log in again.', 401)
+      new Error('User recently changed password! Please log in again.')
     );
   }
 
   // GRANT ACCESS TO PROTECTED ROUTE
   req.user = currentUser;
+  res.locals.user = currentUser;
+
   next();
 };
 //since mddlewares cant have parameters we had to wrap it into another function
@@ -110,7 +120,7 @@ exports.restrictTo = (...roles) => {
     // roles ['admin', 'lead-guide']. role='user'
     if (!roles.includes(req.user.role)) {
       return next(
-        new AppError('You do not have permission to perform this action', 403)
+        new Error('You do not have permission to perform this action')
       );
     }
 
@@ -122,7 +132,7 @@ exports.forgotPassword = async (req, res, next) => {
   // 1) Get user based on POSTed email
   const user = await User.findOne({ email: req.body.email });
   if (!user) {
-    return next(new AppError('There is no user with email address.', 404));
+    return next(new Error('There is no user with email address.'));
   }
 
   // 2) Generate the random reset token
@@ -167,4 +177,40 @@ exports.updatePassword = async (req, res, next) => {
 
   await user.save();
   createSendToken(user, 201, res);
+};
+
+// Only for rendered pages, no errors!
+exports.isLoggedIn = async (req, res, next) => {
+  console.log('inside logg in');
+  if (req.cookies.jwt) {
+    try {
+      // 1) verify token
+      const decoded = await promisify(jwt.verify)(
+        req.cookies.jwt,
+        process.env.JWT_SECRET
+      );
+
+      // 2) Check if user still exists
+      const currentUser = await User.findById(decoded.id);
+      if (!currentUser) {
+        console.log('userr not found');
+        return next();
+      }
+
+      // 3) Check if user changed password after the token was issued
+      if (currentUser.changedPasswordAfter(decoded.iat)) {
+        console.log('userr pasword changed');
+        return next();
+      }
+
+      // THERE IS A LOGGED IN USER
+      res.locals.user = currentUser;
+      console.log('yaay we made it');
+      console.log(res.locals.user);
+      return next();
+    } catch (err) {
+      return next();
+    }
+  }
+  next();
 };
