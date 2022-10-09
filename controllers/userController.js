@@ -1,4 +1,28 @@
 const User = require('./../models/userModel');
+const multer = require('multer');
+const multerStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    // cb(null, '/tmp/my-uploads')
+    cb(null, 'public/img/users');
+  },
+  filename: (req, file, ff) => {
+    const ext = file.mimetype.split('/')[1];
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    ff(null, file.fieldname + '-' + uniqueSuffix + '.' + ext);
+  },
+});
+const multerFilter = (req, file, gg) => {
+  if (file.mimetype.startsWith('image')) {
+    gg(null, true);
+  } else {
+    gg(new Error('Not an image !'), false);
+  }
+};
+
+const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
+
+exports.userPhoto = upload.single('photo');
+
 const filtred = (obj, ...allowedFields) => {
   obje = {};
   Object.keys(obj).forEach((el) => {
@@ -47,11 +71,14 @@ exports.deleteMe = async (req, res, next) => {
   });
 };
 exports.updateMe = async (req, res, next) => {
+  console.log(req.file);
+
   if (req.body.password || req.body.passwordConfirm)
     throw new Error('the wrong way to update password !');
 
   const filtredBody = filtred(req.body, 'name', 'email');
   //we could use it because we arent updating sensetive data like password
+  if (req.file) filtredBody.photo = req.file.filename;
   const user = await User.findByIdAndUpdate(req.user.id, filtredBody, {
     new: true,
     runValidators: true,
