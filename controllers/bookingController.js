@@ -1,6 +1,7 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const Tour = require('./../models/tourModel');
 const Booking = require('./../models/bookingModel');
+const Factory = require('./handlerFactory');
 
 exports.getCheckoutSession = async (req, res, next) => {
   console.log('inside booking');
@@ -50,3 +51,9 @@ exports.createCheckout = async (req, res, next) => {
   console.log('before redirect');
   res.redirect(req.originalUrl.split('?')[0]);
 };
+
+exports.saveBooking = Factory.createOne(Booking);
+exports.getBooking = Factory.getOne(Booking);
+exports.updateBooking = Factory.updateOne(Booking);
+exports.deleteBooking = Factory.deleteOne(Booking);
+exports.getAllBookings = Factory.getAll(Booking);
