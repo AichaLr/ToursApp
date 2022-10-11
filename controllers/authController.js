@@ -181,7 +181,6 @@ exports.updatePassword = async (req, res, next) => {
 
 // Only for rendered pages, no errors!
 exports.isLoggedIn = async (req, res, next) => {
-  console.log('inside logg in');
   if (req.cookies.jwt) {
     try {
       // 1) verify token
@@ -205,8 +204,7 @@ exports.isLoggedIn = async (req, res, next) => {
 
       // THERE IS A LOGGED IN USER
       res.locals.user = currentUser;
-      console.log('yaay we made it');
-      console.log(res.locals.user);
+
       return next();
     } catch (err) {
       return next();

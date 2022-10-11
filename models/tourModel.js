@@ -118,7 +118,7 @@ tourSchema.pre('save', function (next) {
 //the post midlleware mean the after middleware will have access not only to the next parameter but also to the finished saved doc
 tourSchema.post('save', function (doc, next) {
   const document = doc.slug;
-  console.log(document);
+  // console.log(document);
   //if we dont call the next we will be stuck here
   next();
 });
@@ -134,7 +134,7 @@ tourSchema.pre(/^find/, function (next) {
 });
 tourSchema.post(/^find/, function (docs, next) {
   console.log(`the query take .. ${Date.now() - this.start} milliseconds`);
-  console.log(docs);
+  //  console.log(docs);
   //if we dont call the next we will be stuck here
   next();
 });

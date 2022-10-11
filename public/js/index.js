@@ -24,8 +24,7 @@ if (loginForm)
     e.preventDefault();
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    console.log(password);
-    console.log(email);
+
     login(email, password);
   });
 if (logOutBtn) {
@@ -39,8 +38,7 @@ if (userDataForm)
     form.append('name', document.getElementById('name').value);
     form.append('email', document.getElementById('email').value);
     form.append('photo', document.getElementById('photo').files[0]);
-    console.log(formData.get('photo'));
-    console.log(formData.get('name'));
+
     updateSettings(form, 'data');
   });
 
@@ -56,7 +54,6 @@ if (userPasswordForm)
       { passwordCurrent, password, passwordConfirm },
       'password'
     );
-    console.log('after await');
     document.querySelector('.btn--save-password').textContent = 'Save password';
     document.getElementById('password-current').value = '';
     document.getElementById('password').value = '';
@@ -65,10 +62,8 @@ if (userPasswordForm)
 
 if (bookBtn)
   bookBtn.addEventListener('click', (e) => {
-    console.log('inside booking btn');
     e.target.textContent = 'Processing...';
 
-    console.log(e.target.dataset);
     const { tourId } = e.target.dataset;
     bookTour(tourId);
   });

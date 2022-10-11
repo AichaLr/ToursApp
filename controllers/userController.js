@@ -71,8 +71,6 @@ exports.deleteMe = async (req, res, next) => {
   });
 };
 exports.updateMe = async (req, res, next) => {
-  console.log(req.file);
-
   if (req.body.password || req.body.passwordConfirm)
     throw new Error('the wrong way to update password !');
 
