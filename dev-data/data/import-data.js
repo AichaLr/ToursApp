@@ -6,7 +6,7 @@ const User = require('../../models/userModel');
 const Review = require('../../models/reviewModel');
 dotenv.config({ path: './config.env' });
 
-const DB = process.env.DATABASE_LOCAL;
+const DB = process.env.DATABASE;
 mongoose.connect(DB).then(() => {
   console.log('DB connected successfily !!');
 });
@@ -16,13 +16,14 @@ const tours = JSON.parse(fs.readFileSync(`${__dirname}/tours.json`, 'utf-8'));
 const reviews = JSON.parse(
   fs.readFileSync(`${__dirname}/reviews.json`, 'utf-8')
 );
-const users = JSON.parse(fs.readFileSync(`${__dirname}/users.json`, 'utf-8'));
+//const users = JSON.parse(fs.readFileSync(`${__dirname}/users.json`, 'utf-8'));
 
 const importData = async () => {
   try {
-    //await Tour.create(tours);
-    await User.create(users, { validateBeforeSave: false });
-    //  await Review.create(reviews);
+    console.log('reading tours');
+    await Tour.create(tours);
+    //   await User.create(users, { validateBeforeSave: false });
+    await Review.create(reviews);
   } catch (error) {
     console.log(error);
   }
