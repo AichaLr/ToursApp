@@ -43,7 +43,7 @@ exports.signup = async (req, res, next) => {
       newUser,
     },
   });
-  //  createSendToken(newUser, 201, res);
+  createSendToken(newUser, 201, res);
 };
 
 exports.login = async (req, res, next) => {
