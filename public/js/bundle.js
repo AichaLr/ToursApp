@@ -11256,32 +11256,33 @@ var logout = /*#__PURE__*/function () {
         switch (_context2.prev = _context2.next) {
           case 0:
             _context2.prev = 0;
-            _context2.next = 3;
+            console.log('im logged outt');
+            _context2.next = 4;
             return (0, _axios.default)({
               method: 'GET',
               url: '/api/v1/users/logout'
             });
 
-          case 3:
+          case 4:
             res = _context2.sent;
             //the true here is to force the reload the page from the server not from the browser cache
             if (res.data.status = 'success') location.assign('/login'); //location.reload(true);
 
-            _context2.next = 11;
+            _context2.next = 12;
             break;
 
-          case 7:
-            _context2.prev = 7;
+          case 8:
+            _context2.prev = 8;
             _context2.t0 = _context2["catch"](0);
             console.log(_context2.t0.response);
             (0, _alert.showAlert)('error', 'Error logging out! Try again.');
 
-          case 11:
+          case 12:
           case "end":
             return _context2.stop();
         }
       }
-    }, _callee2, null, [[0, 7]]);
+    }, _callee2, null, [[0, 8]]);
   }));
 
   return function logout() {
@@ -11321,35 +11322,38 @@ var updateSettings = /*#__PURE__*/function () {
         switch (_context.prev = _context.next) {
           case 0:
             _context.prev = 0;
+            console.log('helllo');
             url = type === 'password' ? '/api/v1/users/updateMyPassword' : '/api/v1/users/updateMe';
-            _context.next = 4;
+            console.log('urlllll update account');
+            console.log(url);
+            _context.next = 7;
             return (0, _axios.default)({
               method: 'PATCH',
               url: url,
               data: data
             });
 
-          case 4:
+          case 7:
             res = _context.sent;
 
             if (res.data.status === 'success') {
               (0, _alert.showAlert)('success', "".concat(type.toUpperCase(), " updated successfully!"));
             }
 
-            _context.next = 11;
+            _context.next = 14;
             break;
 
-          case 8:
-            _context.prev = 8;
+          case 11:
+            _context.prev = 11;
             _context.t0 = _context["catch"](0);
             (0, _alert.showAlert)('error', _context.t0.response.data.message);
 
-          case 11:
+          case 14:
           case "end":
             return _context.stop();
         }
       }
-    }, _callee, null, [[0, 8]]);
+    }, _callee, null, [[0, 11]]);
   }));
 
   return function updateSettings(_x, _x2) {
@@ -11735,6 +11739,7 @@ if (logOutBtn) {
 
 if (userDataForm) userDataForm.addEventListener('submit', function (e) {
   e.preventDefault();
+  console.log('inside ata formmm');
   var form = new FormData();
   form.append('name', document.getElementById('name').value);
   form.append('email', document.getElementById('email').value);
@@ -11811,7 +11816,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50729" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55802" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
